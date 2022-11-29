@@ -4,8 +4,11 @@ const path = require('path');
 const fs = require('fs');
 
 const pg = require('pg');
-const client = new pg.Client('postgres://postgres:admin@db:5432/users');
-client.connect();
+const client = new pg.Client('postgres://postgres:admin@db:5432/postgres');
+setTimeout(() => {
+    client.connect();
+  }, 2000)
+
 
 const port = 8000;
 
@@ -96,9 +99,37 @@ app.post("/meranie", function(req, res) {
         } catch(e) {
             console.error(e);
         }
-        console.log(jData);
+        client.query('INSERT INTO merania (user_id, datum, hodnota, typ, metoda) VALUES (\''+parseInt(jData.id)+'\',\''+jData.date+'\',\''+jData.value+'\',\''+jData.typ+'\',\''+jData.method+'\');').then(() => {
+                client.query('SELECT * FROM merania where user_id=\''+parseInt(jData.id)+'\'').then((response) => {
+                    res.send(JSON.stringify({'list': response.rows}))
+                }).catch(e => {
+                    res.end(JSON.stringify({'err':'DB went wrong - '+e,'mem':''}));
+                });
+        });
     })
-    res.send(JSON.stringify({message: "mam to"}))
+    
+})
+
+app.post("/getmeranie", function(req, res) {
+    let chunks = [];
+
+    req.on('data', (data)=> {
+        chunks.push(data);
+    })
+    req.on('end', ()=>{
+        const resData = chunks.join('');
+        let jData = {};
+        try {
+            jData = JSON.parse(resData);
+        } catch(e) {
+            console.error(e);
+        }
+        client.query('SELECT * FROM merania where user_id=\''+parseInt(jData.id)+'\'').then((response) => {
+            res.send(JSON.stringify({'list': response.rows}))
+        }).catch(e => {
+            res.end(JSON.stringify({'err':'DB went wrong - '+e,'mem':''}));
+        });
+    });
 })
 
 app.get("/users", function(req, res) {
@@ -232,9 +263,9 @@ app.post("/metoda", function(req, res){
         } catch(e) {
             console.error(e);
         }
-        client.query('INSERT INTO metody (nazov, popis) VALUES (\''+jData.nazov+'\',\''+jData.popis+'\') ON CONFLICT (nazov) DO NOTHING;').then((results) => {
+        client.query('INSERT INTO metody (user_id, nazov, popis) VALUES (\''+parseInt(jData.id)+'\',\''+jData.nazov+'\',\''+jData.popis+'\');').then((results) => {
             if (results.rowCount == 1){
-                client.query('SELECT nazov FROM metody ORDER BY id ASC').then((response) => {
+                client.query('SELECT nazov FROM metody WHERE user_id=\''+parseInt(jData.id)+'\';').then((response) => {
                     console.log(response)
                     res.send(JSON.stringify({'list': response.rows}))
                 }).catch(e => {
@@ -247,10 +278,24 @@ app.post("/metoda", function(req, res){
     })
 })
 
-app.get("/metoda", function(req, res){
-    client.query('SELECT nazov FROM metody ORDER BY id ASC').then((response) => {
-        console.log(response)
-        res.send(JSON.stringify({'list': response.rows}))
+app.post("/getmetoda", function(req, res){
+    let chunks = [];
+
+    req.on('data', (data)=> {
+        chunks.push(data);
+    })
+    req.on('end', ()=>{
+        const resData = chunks.join('');
+        let jData = {};
+        try {
+            jData = JSON.parse(resData);
+        } catch(e) {
+            console.error(e);
+        }
+        client.query('SELECT nazov FROM metody WHERE user_id=\''+parseInt(jData.id)+'\';').then((response) => {
+            console.log(response)
+            res.send(JSON.stringify({'list': response.rows}))
+        })
     })
 })
 
@@ -268,8 +313,31 @@ app.post("/delmetoda", function(req, res){
         } catch(e) {
             console.error(e);
         }
-        client.query('DELETE FROM metody WHERE nazov=\''+jData.nazov+'\'');
-        client.query('SELECT nazov FROM metody ORDER BY id ASC').then((response) => {
+        client.query('DELETE FROM metody WHERE nazov=\''+jData.nazov+'\' AND user_id=\''+jData.id+'\'');
+        client.query('SELECT nazov FROM metody WHERE user_id=\''+parseInt(jData.id)+'\';').then((response) => {
+            res.send(JSON.stringify({'list': response.rows}))
+        }).catch(e => {
+            console.log(e);
+        });
+    })
+})
+
+app.post("/delmeranie", function(req, res) {
+    let chunks = [];
+
+    req.on('data', (data)=> {
+        chunks.push(data);
+    })
+    req.on('end', ()=>{
+        const resData = chunks.join('');
+        let jData = {};
+        try {
+            jData = JSON.parse(resData);
+        } catch(e) {
+            console.error(e);
+        }
+        client.query('DELETE FROM merania WHERE user_id=\''+jData.id+'\' AND datum=\''+jData.datum+'\' AND hodnota=\''+jData.hodnota+'\' AND typ=\''+jData.typ+'\' AND metoda=\''+jData.metoda+'\';');
+        client.query('SELECT * FROM merania WHERE user_id=\''+parseInt(jData.id)+'\';').then((response) => {
             res.send(JSON.stringify({'list': response.rows}))
         }).catch(e => {
             console.log(e);

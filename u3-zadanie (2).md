@@ -8,8 +8,8 @@ Cielom zadania je vytvorit webovu aplikaciu pre monitorovanie osobnej kondicie. 
 
 # Bodovanie
 1    DB a praca s nou v ramci JS SUM 5
-a       vahy                         1
-b       [2nd param, 3rd param]       1
+a       vahy                         1*
+b       [2nd param, 3rd param]       1*
 c       pouzivatelia                 1*
 d       metody                       1*
 e       reklama                      1*
@@ -17,7 +17,7 @@ e       reklama                      1*
 2    rozhranie aplikacie pouzivatela                                           SUM 12
 a       stranky s moznostou registracie a prihlasenia pouzivatela                   1*
         stranky so spravou merani
-b         vlozit a zmazat merania                                                   2
+b         vlozit a zmazat merania                                                   2*
 c         import a export merani                                                    2
 d       stranka so spravou metody (vlozit, zmazat)                                  2*
         stranka s tabulkou a grafom udajov pouzivatela
