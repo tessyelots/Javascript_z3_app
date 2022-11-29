@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 function Main (props) {
 
     const [openAdd, setOpenAdd] = useState(false);
+    const [filterState, setFilterState] = useState('nikto');
 
     function getInput(id){
         return document.getElementById(id).value
@@ -86,27 +87,31 @@ function Main (props) {
         toDelete.forEach(row => {
             row.remove();
           });
-      
-        for (let i = 0; i < tableData.length; i++){
-            var row = table.insertRow(i+1);
-            row.className = "made"
-            row.id = ""+(i+1)+""
-            
-            var cislo = row.insertCell(0);
-            cislo.innerHTML = ""+(i+1)+""
-            cislo.className = "made"
-            var datum = row.insertCell(1);
-            datum.innerHTML = tableData[i].datum.slice(0, 10)
-            datum.className = "made"
-            var hodnota = row.insertCell(2);
-            hodnota.innerHTML = tableData[i].hodnota
-            hodnota.className = "made"
-            var typ = row.insertCell(3);
-            typ.innerHTML = tableData[i].typ
-            typ.className = "made"
-            var metoda = row.insertCell(4);
-            metoda.innerHTML = tableData[i].metoda
-            metoda.className = "made"
+        
+        var i = 0;
+        for (const el of tableData){
+            if (el.metoda === filterState || filterState === 'nikto'){
+                var row = table.insertRow(i+1);
+                row.classList.add(el.metoda, "made");
+                row.id = ""+(i+1)+""
+                
+                var cislo = row.insertCell(0);
+                cislo.innerHTML = ""+(i+1)+""
+                cislo.className = "made"
+                var datum = row.insertCell(1);
+                datum.innerHTML = el.datum.slice(0, 10)
+                datum.className = "made"
+                var hodnota = row.insertCell(2);
+                hodnota.innerHTML = el.hodnota
+                hodnota.className = "made"
+                var typ = row.insertCell(3);
+                typ.innerHTML = el.typ
+                typ.className = "made"
+                var metoda = row.insertCell(4);
+                metoda.innerHTML = el.metoda
+                metoda.className = "made"
+                i++;
+            }
         }
      }
 
@@ -228,6 +233,14 @@ function Main (props) {
             });
     }
 
+    function filter(){
+        setFilterState(getInput('filter-input'));
+    }
+
+    function resetFilter(){
+        setFilterState('nikto');
+    }
+
     function click(){
         props.logout()
     }
@@ -275,6 +288,10 @@ function Main (props) {
                     <button onClick={closeAdd}>CLOSE</button>
                     <br></br>
                     <h3>Tvoje merania</h3>
+                    Napis nazov metody podla ktorej chces filtrovat: 
+                    <input id="filter-input"></input>
+                    <button onClick={filter}>FILTER</button>
+                    <button onClick={resetFilter}>Reset filter</button>
                     <table id="merania-table" onClick={getMerania()}>
                         <tr>
                             <th>Cislo</th>
@@ -299,6 +316,10 @@ function Main (props) {
                     <button onClick={click2}>Vlozit metodu</button>
                     <br></br>
                     <h3>Tvoje merania</h3>
+                    Napis nazov metody podla ktorej chces filtrovat: 
+                    <input id="filter-input"></input>
+                    <button onClick={filter}>FILTER</button>
+                    <button onClick={resetFilter}>Reset filter</button>
                     <table id="merania-table" onClick={getMerania()}>
                         <tr>
                             <th>Cislo</th>
@@ -316,11 +337,9 @@ function Main (props) {
                 </div>
             );
         }
-        
     }else{
         return
     }
-    
 }
 
 export default Main
