@@ -18,19 +18,19 @@ e       reklama                      1*
 a       stranky s moznostou registracie a prihlasenia pouzivatela                   1*
         stranky so spravou merani
 b         vlozit a zmazat merania                                                   2*
-c         import a export merani                                                    2
+c         import a export merani                                                    2*
 d       stranka so spravou metody (vlozit, zmazat)                                  2*
         stranka s tabulkou a grafom udajov pouzivatela
-e         moznostou vyberu casoveho rozsahu                                         2
+e         moznostou vyberu casoveho rozsahu                                         2*
           zobrazenie linearnej regresie
 f           vaha                                                                    1
 g           [2nd param] a [3rd param]                                               1
-h         filtracia udajov podla metody                                             2
+h         filtracia udajov podla metody                                             2*
 i       stranka s reklamou                                                          1*
 
 3    admin rozrhanie                                        SUM 3
 a       so spravou pouzivatelov - vytvorit a zmazat pouzivatela 1*
-b       import pouzivatelov a export pouzivatelov               1
+b       import pouzivatelov a export pouzivatelov               1*
 c       nastavenie reklamy a zobrazenie pocitadla               1*
 
 4    end-to-end test vlozenia vahy (simulacia network callov a pouzite mocha) 5

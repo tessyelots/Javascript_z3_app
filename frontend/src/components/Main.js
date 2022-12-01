@@ -1,5 +1,7 @@
 import { useEffect, useState } from 'react';
 import Chart from 'chart.js/auto';
+import { CSVLink } from "react-csv";
+import Papa from 'papaparse';
 
 function Main (props) {
 
@@ -7,6 +9,7 @@ function Main (props) {
     const [filterState, setFilterState] = useState('nikto');
     const [minCas, setMinCas] = useState('0001-01-01');
     const [maxCas, setMaxCas] = useState('9999-12-31');
+    const [csvData, setCsvData] = useState([]);
 
     function getInput(id){
         return document.getElementById(id).value
@@ -41,6 +44,7 @@ function Main (props) {
                 })
             }).then(data => data.json()).then(data => {
                 updateMerania(data.list);
+                exportMerania(data.list);
             });
             setOpenAdd(false)
         }else{
@@ -81,6 +85,7 @@ function Main (props) {
                 })
             }).then(data => data.json()).then(data => {
                 updateMerania(data.list);
+                exportMerania(data.list);
         });
     }
 
@@ -249,8 +254,8 @@ function Main (props) {
                     metoda: list[4],
                 })
             }).then(data => data.json()).then(data => {
-                console.log(data)
                 updateMerania(data.list)
+                exportMerania(data.list);
             });
     }
 
@@ -270,6 +275,46 @@ function Main (props) {
     function resetCas(){
         setMinCas('0001-01-01');
         setMaxCas('9999-12-31');
+    }
+
+    function exportMerania(list){
+        var vysledok = [["date", "value", "typ", "method"]]
+        list.forEach((el) => {
+            let temp = [];
+            temp.push(el.datum);
+            temp.push(el.hodnota);
+            temp.push(el.typ);
+            temp.push(el.metoda);
+            vysledok.push(temp);
+        })
+        setCsvData(vysledok);
+    }
+
+    const importFile = (event) => {
+        Papa.parse(event.target.files[0], {
+            header: true,
+            skipEmptyLines: true,
+            complete: function (results) {
+            console.log(results);
+            results.data.forEach(v => {v.id = props.id});
+            console.log(results.data);
+            fetch('http://localhost:8000/import',{
+                method: 'POST',
+                mode: 'cors',
+                cache: 'no-cache',
+                credentials: 'same-origin',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                redirect: 'follow',
+                referrerPolicy: 'no-referrer',
+                body: JSON.stringify(results)
+            }).then(data => data.json()).then(data => {
+                updateMerania(data.list);
+                exportMerania(data.list);
+            });
+            },
+        })
     }
 
     function vyberData(){
@@ -391,6 +436,9 @@ function Main (props) {
                     <input id="zmazat-meranie-input"></input>
                     <button onClick={zmazatMeranie}>ZMAZAT</button>
                     <br></br>
+                    <CSVLink data={csvData}>EXPORT MERANIA</CSVLink>
+                    <br></br>
+                    <input type="file" name='file' accept='.csv' id='import-file-input' onChange={importFile}></input>
                     <h3>Graf váha</h3>
                     <div>
                         <canvas id="myChart1"></canvas>
@@ -439,6 +487,9 @@ function Main (props) {
                     <input id="zmazat-meranie-input"></input>
                     <button onClick={zmazatMeranie}>ZMAZAT</button>
                     <br></br>
+                    <CSVLink data={csvData}>EXPORT MERANIA</CSVLink>
+                    <br></br>
+                    <input type="file" name='file' accept='.csv' id='import-file-input' onChange={importFile}></input>
                     <h3>Graf váha</h3>
                     <div>
                         <canvas id="myChart1"></canvas>

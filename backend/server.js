@@ -213,27 +213,59 @@ app.post("/import", function(req, res){
         } catch(e) {
             console.error(e);
         }
-        client.query('COPY users(email, name, password, vek, vyska) FROM \''+jData.path+'\' DELIMITER ',' CSV HEADER ON CONFLICT DO NOTHING;');
+        jData.data.forEach((el) => {
+            client.query('INSERT INTO '+el.typ+' (user_id,datum,hodnota,metoda) VALUES (\''+el.id+'\',\''+el.date+'\',\''+el.value+'\',\''+el.method+'\')')
+        })
+        
+        var list1;
+        var list2;
+        client.query('SELECT * FROM vaha WHERE user_id=\''+parseInt(jData.data[0].id)+'\'').then((response) => {
+            list1 = response.rows;
+            list1.forEach(v => {v.typ = 'vaha';});
+        }).catch(e => {
+            res.end(JSON.stringify({'err':'DB went wrong - '+e,'mem':''}));
+        });
+
+        client.query('SELECT * FROM tep WHERE user_id=\''+parseInt(jData.data[0].id)+'\'').then((response) => {
+            list2 = response.rows;
+            list2.forEach(v => {v.typ = 'tep';});
+        }).catch(e => {
+            res.end(JSON.stringify({'err':'DB went wrong - '+e,'mem':''}));
+        });
+        
+        client.query('SELECT * FROM kroky WHERE user_id=\''+parseInt(jData.data[0].id)+'\'').then((response) => {
+            var list3 = response.rows;
+            list3.forEach(v => {v.typ = 'kroky';});
+            res.send(JSON.stringify({'list': list3.concat(list1, list2)}));
+        }).catch(e => {
+            res.end(JSON.stringify({'err':'DB went wrong - '+e,'mem':''}));
+        });
+    })
+})
+
+app.post("/importusers", function(req, res){
+    let chunks = [];
+
+    req.on('data', (data)=> {
+        chunks.push(data);
+    })
+    req.on('end', ()=>{
+        const resData = chunks.join('');
+        let jData = {};
+        try {
+            jData = JSON.parse(resData);
+        } catch(e) {
+            console.error(e);
+        }
+        jData.data.forEach((el) => {
+            client.query('INSERT INTO users (email,name,password,vek,vyska) VALUES (\''+el.email+'\',\''+el.name+'\',\''+el.password+'\',\''+el.vek+'\',\''+el.vyska+'\') ON CONFLICT (email) DO NOTHING;')
+        })
         client.query('SELECT * FROM users').then((response) => {
             res.send(JSON.stringify(response.rows))
         }).catch(e => {
             console.log(e);
         });
     })
-})
-
-app.get("/export", function(req, res){
-    var file = 'users.csv'
-    fs.open(file, 'w', (err, f) => {
-        if (err) throw err;
-        else {
-            //file = path.resolve(file)
-            //console.log(file)
-            //client.query('COPY users TO \''+file+'\' DELIMITER \',\' CSV HEADER;');
-            //console.log('Saved!');
-            res.send(JSON.stringify({message: file}));
-        }
-    });
 })
 
 app.get("/reklama", function(req, res){

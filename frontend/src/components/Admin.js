@@ -1,6 +1,10 @@
-import { useEffect, useState } from "react"
+import { CSVLink } from "react-csv";
+import Papa from 'papaparse';
+import {useState} from 'react';
 
 function Admin(props){
+
+    const [csvData, setCsvData] = useState([]);
 
     function click(){
         props.logout()
@@ -59,6 +63,7 @@ function Admin(props){
                 referrerPolicy: 'no-referrer',
             }).then(data => data.json()).then(data => {
                 updateTable(data)
+                exportUsers(data)
         });
     }
 
@@ -112,13 +117,18 @@ function Admin(props){
                 })
             }).then(data => data.json()).then(data => {
                 updateTable(data)
+                exportUsers(data)
             });
         }
     }
 
-    function importUsers(){
-        var path = document.getElementById('import').value
-        fetch('http://localhost:8000/import',{
+    const importUsers = (event) => {
+        Papa.parse(event.target.files[0], {
+            header: true,
+            skipEmptyLines: true,
+            complete: function (results) {
+            console.log(results);
+            fetch('http://localhost:8000/importusers',{
                 method: 'POST',
                 mode: 'cors',
                 cache: 'no-cache',
@@ -128,28 +138,14 @@ function Admin(props){
                 },
                 redirect: 'follow',
                 referrerPolicy: 'no-referrer',
-                body: JSON.stringify({
-                    path: path
-                })
+                body: JSON.stringify(results)
             }).then(data => data.json()).then(data => {
-                updateTable(data)
+                updateTable(data.list);
+                exportUsers(data.list);
             });
-    }
-
-    function exportUsers(){
-        fetch('http://localhost:8000/export',{
-                method: 'GET',
-                mode: 'cors',
-                cache: 'no-cache',
-                credentials: 'same-origin',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                redirect: 'follow',
-                referrerPolicy: 'no-referrer',
-            }).then(data => data.json()).then(data => {
-                alert("Data su v subore "+data.message)
-            });
+            },
+        })
+        document.getElementById('import-users-input').value = "";
     }
 
     function zmenObrazok(){
@@ -198,6 +194,21 @@ function Admin(props){
             });
     }
 
+    function exportUsers(list){
+        var vysledok = [["id", "email", "name", "password", "vek", "vyska"]]
+        list.forEach((el) => {
+            let temp = [];
+            temp.push(el.id);
+            temp.push(el.email);
+            temp.push(el.name);
+            temp.push(el.password);
+            temp.push(el.vek);
+            temp.push(el.vyska);
+            vysledok.push(temp);
+        })
+        setCsvData(vysledok);
+    }
+
     if (props.adminOpen){
         return (<div>
             <h1>ADMIN</h1>
@@ -233,11 +244,9 @@ function Admin(props){
             <input type="number" id="zmazat"></input>
             <button id="zmazat-button" onClick={zmazat}>ZMAZAT</button>
             <br></br>
-            Zadaj absolutnu cestu k suboru:
-            <input id="import"></input>
-            <button id="import-button" onClick={importUsers}>IMPORT</button>
+            <CSVLink data={csvData}>EXPORT USERS</CSVLink>
             <br></br>
-            <button onClick={exportUsers}>EXPORT</button>
+            <input type="file" name='file' accept='.csv' id='import-users-input' onChange={importUsers}></input>
             <br></br>
             Reklama 1: 
             <img src={props.reklamaImage1} width="100" height="100"/>
