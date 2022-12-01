@@ -5,6 +5,8 @@ function Main (props) {
 
     const [openAdd, setOpenAdd] = useState(false);
     const [filterState, setFilterState] = useState('nikto');
+    const [minCas, setMinCas] = useState('0001-01-01');
+    const [maxCas, setMaxCas] = useState('9999-12-31');
 
     function getInput(id){
         return document.getElementById(id).value
@@ -105,26 +107,31 @@ function Main (props) {
         var i = 0;
         for (const el of tableData){
             if (el.metoda === filterState || filterState === 'nikto'){
-                var row = table.insertRow(i+1);
-                row.classList.add(el.metoda, "made");
-                row.id = ""+(i+1)+""
-                
-                var cislo = row.insertCell(0);
-                cislo.innerHTML = ""+(i+1)+""
-                cislo.className = "made"
-                var datum = row.insertCell(1);
-                datum.innerHTML = el.datum
-                datum.className = "made"
-                var hodnota = row.insertCell(2);
-                hodnota.innerHTML = el.hodnota
-                hodnota.className = "made"
-                var typ = row.insertCell(3);
-                typ.innerHTML = el.typ
-                typ.className = "made"
-                var metoda = row.insertCell(4);
-                metoda.innerHTML = el.metoda
-                metoda.className = "made"
-                i++;
+                var min = new Date(minCas);
+                var max = new Date(maxCas);
+                var toto = new Date(el.datum);
+                if(min - toto <= 0 && max - toto >= 0) {
+                    var row = table.insertRow(i+1);
+                    row.classList.add(el.metoda, "made");
+                    row.id = ""+(i+1)+""
+                    
+                    var cislo = row.insertCell(0);
+                    cislo.innerHTML = ""+(i+1)+""
+                    cislo.className = "made"
+                    var datum = row.insertCell(1);
+                    datum.innerHTML = el.datum
+                    datum.className = "made"
+                    var hodnota = row.insertCell(2);
+                    hodnota.innerHTML = el.hodnota
+                    hodnota.className = "made"
+                    var typ = row.insertCell(3);
+                    typ.innerHTML = el.typ
+                    typ.className = "made"
+                    var metoda = row.insertCell(4);
+                    metoda.innerHTML = el.metoda
+                    metoda.className = "made"
+                    i++;
+                }
             }
         }
      }
@@ -255,6 +262,16 @@ function Main (props) {
         setFilterState('nikto');
     }
 
+    function cas(){
+        setMinCas(getInput('min-input'));
+        setMaxCas(getInput('max-input'));
+    }
+
+    function resetCas(){
+        setMinCas('0001-01-01');
+        setMaxCas('9999-12-31');
+    }
+
     function vyberData(){
         var table = document.getElementById('merania-table');
         var rows = table.childNodes;
@@ -353,6 +370,14 @@ function Main (props) {
                     <input id="filter-input"></input>
                     <button onClick={filter}>FILTER</button>
                     <button onClick={resetFilter}>Reset filter</button>
+                    <br></br>
+                    Zadaj casovy rozsah tabulky a grafu: 
+                    MIN: 
+                    <input id="min-input" type="date"></input>
+                    MAX: 
+                    <input id="max-input" type="date"></input>
+                    <button onClick={cas}>FILTER</button>
+                    <button onClick={resetCas}>Reset filter</button>
                     <table id="merania-table" onClick={getMerania()}>
                         <tr>
                             <th>Cislo</th>
@@ -393,6 +418,14 @@ function Main (props) {
                     <input id="filter-input"></input>
                     <button onClick={filter}>FILTER</button>
                     <button onClick={resetFilter}>Reset filter</button>
+                    <br></br>
+                    Zadaj casovy rozsah tabulky a grafu:
+                    MIN: 
+                    <input id="min-input" type="date"></input>
+                    MAX: 
+                    <input id="max-input" type="date"></input>
+                    <button onClick={cas}>FILTER</button>
+                    <button onClick={resetCas}>Reset filter</button>
                     <table id="merania-table" onClick={getMerania()}>
                         <tr>
                             <th>Cislo</th>

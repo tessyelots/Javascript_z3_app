@@ -2,7 +2,6 @@ const express = require('express');
 const app = express();
 const path = require('path'); 
 const fs = require('fs');
-const {sign} = require('jsonwebtoken');
 
 const pg = require('pg');
 const client = new pg.Client('postgres://postgres:admin@db:5432/postgres');
