@@ -35,10 +35,27 @@ INSERT INTO reklama (id, obrazok, link, pocet) VALUES
 (1,	'https://www.fiit.stuba.sk/buxus/images/nova_budova/FIIT-budova-jesen20_web.jpg',	'https://www.fiit.stuba.sk/',	0);
 
 
-CREATE TABLE public.merania (
+CREATE TABLE public.vaha (
     user_id integer NOT NULL,
     datum date NOT NULL,
     hodnota integer NOT NULL,
     typ text NOT NULL,
+    metoda text
+) WITH (oids = false);
+
+DROP TABLE IF EXISTS kroky;
+CREATE TABLE public.kroky (
+    user_id integer NOT NULL,
+    datum date NOT NULL,
+    hodnota integer NOT NULL,
+    metoda text
+) WITH (oids = false);
+
+
+DROP TABLE IF EXISTS tep;
+CREATE TABLE public.tep (
+    user_id integer NOT NULL,
+    datum date NOT NULL,
+    hodnota integer NOT NULL,
     metoda text
 ) WITH (oids = false);

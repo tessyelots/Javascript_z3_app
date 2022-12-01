@@ -6,7 +6,14 @@ import Admin from './components/Admin';
 import Reklama from './components/Reklama';
 import { useState, useEffect } from 'react';
 
+
 function App() {
+
+  useEffect(() => {
+    if (sessionStorage.id){
+      otvorMain(sessionStorage.id)
+    }
+  }, [])
 
   useEffect(() => {
     var i = 1;

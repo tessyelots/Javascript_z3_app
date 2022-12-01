@@ -30,7 +30,8 @@ function Login (props) {
                 }else if(data.err === 'admin'){
                     props.openAdmin()
                 }else{
-                    props.openMain(data.id)
+                    sessionStorage.setItem("id", data.id);
+                    props.openMain(data.id);
                 }
         });
     }

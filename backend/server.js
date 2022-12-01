@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 const path = require('path'); 
 const fs = require('fs');
+const {sign} = require('jsonwebtoken');
 
 const pg = require('pg');
 const client = new pg.Client('postgres://postgres:admin@db:5432/postgres');
@@ -99,12 +100,30 @@ app.post("/meranie", function(req, res) {
         } catch(e) {
             console.error(e);
         }
-        client.query('INSERT INTO merania (user_id, datum, hodnota, typ, metoda) VALUES (\''+parseInt(jData.id)+'\',\''+jData.date+'\',\''+jData.value+'\',\''+jData.typ+'\',\''+jData.method+'\');').then(() => {
-                client.query('SELECT * FROM merania where user_id=\''+parseInt(jData.id)+'\'').then((response) => {
-                    res.send(JSON.stringify({'list': response.rows}))
-                }).catch(e => {
-                    res.end(JSON.stringify({'err':'DB went wrong - '+e,'mem':''}));
-                });
+        client.query('INSERT INTO '+jData.typ+' (user_id, datum, hodnota, metoda) VALUES (\''+parseInt(jData.id)+'\',\''+jData.date+'\',\''+jData.value+'\',\''+jData.method+'\');').then(() => {
+            var list1;
+            var list2;
+            client.query('SELECT * FROM vaha WHERE user_id=\''+parseInt(jData.id)+'\'').then((response) => {
+                list1 = response.rows;
+                list1.forEach(v => {v.typ = 'vaha';});
+            }).catch(e => {
+                res.end(JSON.stringify({'err':'DB went wrong - '+e,'mem':''}));
+            });
+    
+            client.query('SELECT * FROM tep WHERE user_id=\''+parseInt(jData.id)+'\'').then((response) => {
+                list2 = response.rows;
+                list2.forEach(v => {v.typ = 'tep';});
+            }).catch(e => {
+                res.end(JSON.stringify({'err':'DB went wrong - '+e,'mem':''}));
+            });
+            
+            client.query('SELECT * FROM kroky WHERE user_id=\''+parseInt(jData.id)+'\'').then((response) => {
+                var list3 = response.rows;
+                list3.forEach(v => {v.typ = 'kroky';});
+                res.send(JSON.stringify({'list': list3.concat(list1, list2)}));
+            }).catch(e => {
+                res.end(JSON.stringify({'err':'DB went wrong - '+e,'mem':''}));
+            });
         });
     })
     
@@ -124,8 +143,26 @@ app.post("/getmeranie", function(req, res) {
         } catch(e) {
             console.error(e);
         }
-        client.query('SELECT * FROM merania where user_id=\''+parseInt(jData.id)+'\'').then((response) => {
-            res.send(JSON.stringify({'list': response.rows}))
+        var list1;
+        var list2;
+        client.query('SELECT * FROM vaha WHERE user_id=\''+parseInt(jData.id)+'\'').then((response) => {
+            list1 = response.rows;
+            list1.forEach(v => {v.typ = 'vaha';});
+        }).catch(e => {
+            res.end(JSON.stringify({'err':'DB went wrong - '+e,'mem':''}));
+        });
+
+        client.query('SELECT * FROM tep WHERE user_id=\''+parseInt(jData.id)+'\'').then((response) => {
+            list2 = response.rows;
+            list2.forEach(v => {v.typ = 'tep';});
+        }).catch(e => {
+            res.end(JSON.stringify({'err':'DB went wrong - '+e,'mem':''}));
+        });
+        
+        client.query('SELECT * FROM kroky WHERE user_id=\''+parseInt(jData.id)+'\'').then((response) => {
+            var list3 = response.rows;
+            list3.forEach(v => {v.typ = 'kroky';});
+            res.send(JSON.stringify({'list': list3.concat(list1, list2)}));
         }).catch(e => {
             res.end(JSON.stringify({'err':'DB went wrong - '+e,'mem':''}));
         });
@@ -336,11 +373,29 @@ app.post("/delmeranie", function(req, res) {
         } catch(e) {
             console.error(e);
         }
-        client.query('DELETE FROM merania WHERE user_id=\''+jData.id+'\' AND datum=\''+jData.datum+'\' AND hodnota=\''+jData.hodnota+'\' AND typ=\''+jData.typ+'\' AND metoda=\''+jData.metoda+'\';');
-        client.query('SELECT * FROM merania WHERE user_id=\''+parseInt(jData.id)+'\';').then((response) => {
-            res.send(JSON.stringify({'list': response.rows}))
+        client.query('DELETE FROM '+jData.typ+' WHERE user_id=\''+jData.id+'\' AND datum=\''+jData.datum+'\' AND hodnota=\''+jData.hodnota+'\' AND metoda=\''+jData.metoda+'\';');
+        var list1;
+        var list2;
+        client.query('SELECT * FROM vaha WHERE user_id=\''+parseInt(jData.id)+'\'').then((response) => {
+            list1 = response.rows;
+            list1.forEach(v => {v.typ = 'vaha';});
         }).catch(e => {
-            console.log(e);
+            res.end(JSON.stringify({'err':'DB went wrong - '+e,'mem':''}));
+        });
+
+        client.query('SELECT * FROM tep WHERE user_id=\''+parseInt(jData.id)+'\'').then((response) => {
+            list2 = response.rows;
+            list2.forEach(v => {v.typ = 'tep';});
+        }).catch(e => {
+            res.end(JSON.stringify({'err':'DB went wrong - '+e,'mem':''}));
+        });
+        
+        client.query('SELECT * FROM kroky WHERE user_id=\''+parseInt(jData.id)+'\'').then((response) => {
+            var list3 = response.rows;
+            list3.forEach(v => {v.typ = 'kroky';});
+            res.send(JSON.stringify({'list': list3.concat(list1, list2)}));
+        }).catch(e => {
+            res.end(JSON.stringify({'err':'DB went wrong - '+e,'mem':''}));
         });
     })
 })

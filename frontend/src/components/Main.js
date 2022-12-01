@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import Chart from 'chart.js/auto';
 
 function Main (props) {
 
@@ -77,11 +78,24 @@ function Main (props) {
                     id: props.id,
                 })
             }).then(data => data.json()).then(data => {
-                updateMerania(data.list)
+                updateMerania(data.list);
         });
     }
 
     function updateMerania(tableData){
+        for (const el of tableData){
+            el.datum = el.datum.slice(0, 10);
+        }
+        tableData.sort(function(a,b){
+            var [year, month, day] = a.datum.split('-');
+            const date1 = new Date(+year, month - 1, +day);
+            
+            var [year, month, day] = b.datum.split('-');
+            const date2 = new Date(+year, month - 1, +day);
+
+            return date1 - date2;
+        });
+
         var table = document.getElementById('merania-table');
         const toDelete = document.querySelectorAll('.made');
         toDelete.forEach(row => {
@@ -99,7 +113,7 @@ function Main (props) {
                 cislo.innerHTML = ""+(i+1)+""
                 cislo.className = "made"
                 var datum = row.insertCell(1);
-                datum.innerHTML = el.datum.slice(0, 10)
+                datum.innerHTML = el.datum
                 datum.className = "made"
                 var hodnota = row.insertCell(2);
                 hodnota.innerHTML = el.hodnota
@@ -241,6 +255,53 @@ function Main (props) {
         setFilterState('nikto');
     }
 
+    function vyberData(){
+        var table = document.getElementById('merania-table');
+        var rows = table.childNodes;
+        var vysledok = {datasets: [
+            {
+                label: 'vaha',
+                data: []
+            },
+            {
+                label: 'tep',
+                data: []
+            },
+            {
+                label: 'kroky',
+                data: []
+            }
+        ]};
+        for (let i = 0; i < rows.length; i++){
+            let columns = rows[i].childNodes;
+            if (columns[3].innerHTML === 'vaha'){
+                let rok = columns[1].innerHTML
+                rok = rok.split('-');
+                rok.forEach((e) => {
+                    e = parseInt(e);
+                })
+                let cislo = parseInt(rok[0]) + (rok[1]/12)
+                vysledok.datasets[0].data.push({
+                    //x: cislo,
+                    x: columns[1].innerHTML,
+                    y: columns[2].innerHTML
+                })
+            }else if (columns[3].innerHTML === 'tep') {
+                vysledok.datasets[1].data.push({
+                    x: columns[1].innerHTML,
+                    y: columns[2].innerHTML
+                })
+            }else if (columns[3].innerHTML === 'kroky') {
+                vysledok.datasets[2].data.push({
+                    x: columns[1].innerHTML,
+                    y: columns[2].innerHTML
+                })
+            }
+        }
+
+        return vysledok;
+    }
+
     function click(){
         props.logout()
     }
@@ -305,6 +366,18 @@ function Main (props) {
                     <input id="zmazat-meranie-input"></input>
                     <button onClick={zmazatMeranie}>ZMAZAT</button>
                     <br></br>
+                    <h3>Graf váha</h3>
+                    <div>
+                        <canvas id="myChart1"></canvas>
+                    </div>
+                    <h3>Graf tep</h3>
+                    <div>
+                        <canvas id="myChart2"></canvas>
+                    </div>
+                    <h3>Graf kroky</h3>
+                    <div>
+                        <canvas id="myChart3"></canvas>
+                    </div>
                     <button onClick={click}>LOGOUT</button>
                 </div>
             );
@@ -333,6 +406,18 @@ function Main (props) {
                     <input id="zmazat-meranie-input"></input>
                     <button onClick={zmazatMeranie}>ZMAZAT</button>
                     <br></br>
+                    <h3>Graf váha</h3>
+                    <div>
+                        <canvas id="myChart1"></canvas>
+                    </div>
+                    <h3>Graf tep</h3>
+                    <div>
+                        <canvas id="myChart2"></canvas>
+                    </div>
+                    <h3>Graf kroky</h3>
+                    <div>
+                        <canvas id="myChart3"></canvas>
+                    </div>
                     <button onClick={click}>LOGOUT</button>
                 </div>
             );
