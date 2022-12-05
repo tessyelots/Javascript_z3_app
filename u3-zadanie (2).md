@@ -23,8 +23,8 @@ d       stranka so spravou metody (vlozit, zmazat)                              
         stranka s tabulkou a grafom udajov pouzivatela
 e         moznostou vyberu casoveho rozsahu                                         2*
           zobrazenie linearnej regresie
-f           vaha                                                                    1
-g           [2nd param] a [3rd param]                                               1
+f           vaha                                                                    1*
+g           [2nd param] a [3rd param]                                               1*
 h         filtracia udajov podla metody                                             2*
 i       stranka s reklamou                                                          1*
 

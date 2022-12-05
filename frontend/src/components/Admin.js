@@ -6,14 +6,17 @@ function Admin(props){
 
     const [csvData, setCsvData] = useState([]);
 
+    //odhlasenie
     function click(){
         props.logout()
     }
 
+    //vratenie value inputu na zaklade jeho id
     function getInput(id) {
         return document.getElementById(id).value
     }
 
+    //vyprazdnenie inputov
     function clearInputs(){
         document.getElementById('email-input').value = ''
         document.getElementById('name-input').value = ''
@@ -22,8 +25,9 @@ function Admin(props){
         document.getElementById('vyska-input').value = ''
     }
 
+    //vytvorenie usera v databaze
     function make(){
-        fetch('http://localhost:8000/func',{
+        fetch('http://localhost:8080/func',{
                 method: 'POST',
                 mode: 'cors',
                 cache: 'no-cache',
@@ -50,8 +54,9 @@ function Admin(props){
         });
     }
 
+    //vratenie vsetkych userov v databaze
     function getUsers(){
-        fetch('http://localhost:8000/users',{
+        fetch('http://localhost:8080/users',{
                 method: 'GET',
                 mode: 'cors',
                 cache: 'no-cache',
@@ -67,6 +72,7 @@ function Admin(props){
         });
     }
 
+    //aktualizacia tabulky
     function updateTable(tableData) {
         var table = document.getElementById('users-table');
         const toDelete = document.querySelectorAll('.made');
@@ -99,10 +105,11 @@ function Admin(props){
         }
     };
 
+    //zmazanie usera
     function zmazat(){
         var id = document.getElementById('zmazat').value
         if (id != undefined){
-            fetch('http://localhost:8000/del',{
+            fetch('http://localhost:8080/del',{
                 method: 'POST',
                 mode: 'cors',
                 cache: 'no-cache',
@@ -122,13 +129,13 @@ function Admin(props){
         }
     }
 
+    //ulozenie importovanych userov do databazy
     const importUsers = (event) => {
         Papa.parse(event.target.files[0], {
             header: true,
             skipEmptyLines: true,
             complete: function (results) {
-            console.log(results);
-            fetch('http://localhost:8000/importusers',{
+            fetch('http://localhost:8080/importusers',{
                 method: 'POST',
                 mode: 'cors',
                 cache: 'no-cache',
@@ -148,10 +155,11 @@ function Admin(props){
         document.getElementById('import-users-input').value = "";
     }
 
+    //zmena obrazku reklamy v databaze
     function zmenObrazok(){
         var id = document.getElementById('id-input').value
         var obrazok = document.getElementById('obrazok-input').value
-        fetch('http://localhost:8000/reklama',{
+        fetch('http://localhost:8080/reklama',{
                 method: 'POST',
                 mode: 'cors',
                 cache: 'no-cache',
@@ -171,10 +179,11 @@ function Admin(props){
             });
     }
 
+    //zmena linku v databaze
     function zmenLink(){
         var id = document.getElementById('id-input').value
         var link = document.getElementById('link-input').value
-        fetch('http://localhost:8000/reklama',{
+        fetch('http://localhost:8080/reklama',{
                 method: 'POST',
                 mode: 'cors',
                 cache: 'no-cache',
@@ -194,6 +203,7 @@ function Admin(props){
             });
     }
 
+    //aktualizacia useState csvData
     function exportUsers(list){
         var vysledok = [["id", "email", "name", "password", "vek", "vyska"]]
         list.forEach((el) => {

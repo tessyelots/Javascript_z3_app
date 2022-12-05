@@ -1,14 +1,18 @@
 function Register (props) {
+
+    //zatvorenie registracie a otvorenie loginu
     function click() {
         props.openReg()
     }
 
+    //vratenie value inputu na zaklade jeho id
     function getInput(id) {
         return document.getElementById(id).value
     }
 
+    //ak sa user uspesne zaregistruje, otvori main page
     function goMain() {
-        fetch('http://localhost:8000/func',{
+        fetch('http://localhost:8080/func',{
                 method: 'POST',
                 mode: 'cors',
                 cache: 'no-cache',

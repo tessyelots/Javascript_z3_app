@@ -9,12 +9,14 @@ import { useState, useEffect } from 'react';
 
 function App() {
 
+  //ulozenie id prihlaseneho usera do session storage
   useEffect(() => {
     if (sessionStorage.id){
       otvorMain(sessionStorage.id)
     }
   }, [])
 
+  //otvaranie okna s reklamou kazdu minutu
   useEffect(() => {
     var i = 1;
     loadReklama()
@@ -26,6 +28,7 @@ function App() {
     return () => clearInterval(interval);
   }, []);
 
+  //aktualizacia dat reklamy kazdych 5 sekund
   useEffect(() => {
     const interval1 = setInterval(() => {
       loadReklama();
@@ -50,8 +53,9 @@ function App() {
 
   const [activeUserId, setActiveUserId] = useState(0);
 
+  //aktualizacia reklamy
   function loadReklama(){
-    fetch('http://localhost:8000/reklama',{
+    fetch('http://localhost:8080/reklama',{
             method: 'GET',
             mode: 'cors',
             cache: 'no-cache',
@@ -74,21 +78,25 @@ function App() {
         })
   }
 
+  //zatvorenie reklamy
   function zatvorReklama(){
     setReklamaOpen(0)
     loadReklama();
   }
 
+  //zatvorenie stranky s registraciou
   function zatvorRegister() {
     setRegisterOpen(false);
     setLoginOpen(true);
   }
 
+  //zatvorenie stranky s prihlasenim
   function zatvorLogin() {
     setLoginOpen(false);
     setRegisterOpen(true);
   }
 
+  //otvorenie main stranky
   function otvorMain(id) {
     setLoginOpen(false)
     setRegisterOpen(false)
@@ -96,11 +104,13 @@ function App() {
     setMainOpen(true)
   }
 
+  //odhlasenie pouzivatela
   function logout(){
     setMainOpen(false)
     setLoginOpen(true)
   }
 
+  //otvorenie rozhrania pre admina
   function otvorAdmin(){
     if (adminOpen) {
       setAdminOpen(false)

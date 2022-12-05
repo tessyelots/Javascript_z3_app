@@ -3,6 +3,7 @@ const app = express();
 const path = require('path'); 
 const fs = require('fs');
 
+//pripojenie k databaze
 const pg = require('pg');
 const client = new pg.Client('postgres://postgres:admin@db:5432/postgres');
 setTimeout(() => {
@@ -10,51 +11,47 @@ setTimeout(() => {
   }, 2000)
 
 
-const port = 8000;
-
-var activeUserId;
+const port = 8080;
 
 app.use(express.static(path.join(__dirname, 'build')));
 
+//index.html
 app.get("/", function(req, res) {
     res.sendFile(path.join(__dirname, 'build', 'index.html'));
 });
 
+//vytvorenie usera pri registracii
 app.post("/func", function(req, res) {
     let chunks = [];
 
     req.on('data', (data)=> {
         chunks.push(data);
     })
-
     req.on('end', ()=>{
         const resData = chunks.join('');
-        console.log(resData);
         let jData = {};
         try {
             jData = JSON.parse(resData);
         } catch(e) {
             console.error(e);
         }
-        console.log(jData);
-            client.query('INSERT INTO users (email,name,password,vek,vyska) VALUES (\''+jData.email+'\',\''+jData.name+'\',\''+jData.password+'\',\''+parseInt(jData.vek)+'\',\''+parseInt(jData.vyska)+'\') ON CONFLICT (email) DO NOTHING;').then((results) => {
-                if (results.rowCount == 1){
-                    client.query('SELECT id FROM users WHERE email=\''+jData.email+'\' ORDER BY id DESC LIMIT 1').then((response) => {
-                        res.send(JSON.stringify({'id': response.rows[0].id}))
-                    }).catch(e => {
-                        res.end(JSON.stringify({'err':'DB went wrong - '+e,'mem':''}));
-                    });
-                }else{
-                    res.send(JSON.stringify({'id': 'zle'}))
-                }
-                
-            }).catch(e => {
-                res.end(JSON.stringify({'err':'DB went wrong - '+e}));
-            });
-        }
-    );
+        client.query('INSERT INTO users (email,name,password,vek,vyska) VALUES (\''+jData.email+'\',\''+jData.name+'\',\''+jData.password+'\',\''+parseInt(jData.vek)+'\',\''+parseInt(jData.vyska)+'\') ON CONFLICT (email) DO NOTHING;').then((results) => {
+            if (results.rowCount == 1){
+                client.query('SELECT id FROM users WHERE email=\''+jData.email+'\' ORDER BY id DESC LIMIT 1').then((response) => {
+                    res.send(JSON.stringify({'id': response.rows[0].id}))
+                }).catch(e => {
+                    res.end(JSON.stringify({'err':'DB went wrong - '+e,'mem':''}));
+                });
+            }else{
+                res.send(JSON.stringify({'id': 'zle'}))
+            }
+        }).catch(e => {
+            res.end(JSON.stringify({'err':'DB went wrong - '+e}));
+        });
+    });
 })
 
+//kontrola udajov pri prihlasovani usera
 app.post("/user", function(req, res) {
     let chunks = [];
 
@@ -85,6 +82,7 @@ app.post("/user", function(req, res) {
     })
 })
 
+//vlozenie merania do databazy a vratenie vsetkych merani clientovi
 app.post("/meranie", function(req, res) {
     let chunks = [];
 
@@ -108,7 +106,6 @@ app.post("/meranie", function(req, res) {
             }).catch(e => {
                 res.end(JSON.stringify({'err':'DB went wrong - '+e,'mem':''}));
             });
-    
             client.query('SELECT * FROM tep WHERE user_id=\''+parseInt(jData.id)+'\'').then((response) => {
                 list2 = response.rows;
                 list2.forEach(v => {v.typ = 'tep';});
@@ -128,6 +125,7 @@ app.post("/meranie", function(req, res) {
     
 })
 
+//posle vsetky merania clientovi
 app.post("/getmeranie", function(req, res) {
     let chunks = [];
 
@@ -168,6 +166,7 @@ app.post("/getmeranie", function(req, res) {
     });
 })
 
+//posle vsetkych userov clientovi
 app.get("/users", function(req, res) {
     client.query('SELECT * FROM users').then((response) => {
         res.send(JSON.stringify(response.rows))
@@ -176,6 +175,7 @@ app.get("/users", function(req, res) {
     });
 })
 
+//vymazanie usera z databazy a vratenie vsetkych userov
 app.post("/del", function(req, res) {
     let chunks = [];
 
@@ -199,6 +199,7 @@ app.post("/del", function(req, res) {
     })
 })
 
+//ulozenie importovanych merani do databazy a vratenie vsetkych merani
 app.post("/import", function(req, res){
     let chunks = [];
 
@@ -216,7 +217,6 @@ app.post("/import", function(req, res){
         jData.data.forEach((el) => {
             client.query('INSERT INTO '+el.typ+' (user_id,datum,hodnota,metoda) VALUES (\''+el.id+'\',\''+el.date+'\',\''+el.value+'\',\''+el.method+'\')')
         })
-        
         var list1;
         var list2;
         client.query('SELECT * FROM vaha WHERE user_id=\''+parseInt(jData.data[0].id)+'\'').then((response) => {
@@ -243,6 +243,7 @@ app.post("/import", function(req, res){
     })
 })
 
+//ulozenie importovanych userov do databazy a vratenie vsetkych userov
 app.post("/importusers", function(req, res){
     let chunks = [];
 
@@ -268,6 +269,7 @@ app.post("/importusers", function(req, res){
     })
 })
 
+//poslanie dat reklam clientovi
 app.get("/reklama", function(req, res){
         client.query('SELECT * FROM reklama ORDER BY id ASC').then((response) => {
             res.send(JSON.stringify({list: response.rows}))
@@ -276,6 +278,7 @@ app.get("/reklama", function(req, res){
         });
 })
 
+//zvysenie pocitadla urcitej reklamy
 app.post("/pocet", function(req, res){
     let chunks = [];
 
@@ -294,6 +297,7 @@ app.post("/pocet", function(req, res){
     })
 })
 
+//zmena obrazku alebo linku urcitej reklamy v databaze
 app.post("/reklama", function(req, res){
     let chunks = [];
 
@@ -317,6 +321,7 @@ app.post("/reklama", function(req, res){
     })
 })
 
+//ulozenie metody do databazy
 app.post("/metoda", function(req, res){
     let chunks = [];
 
@@ -334,7 +339,6 @@ app.post("/metoda", function(req, res){
         client.query('INSERT INTO metody (user_id, nazov, popis) VALUES (\''+parseInt(jData.id)+'\',\''+jData.nazov+'\',\''+jData.popis+'\');').then((results) => {
             if (results.rowCount == 1){
                 client.query('SELECT nazov FROM metody WHERE user_id=\''+parseInt(jData.id)+'\';').then((response) => {
-                    console.log(response)
                     res.send(JSON.stringify({'list': response.rows}))
                 }).catch(e => {
                     res.end(JSON.stringify({'err':'DB went wrong - '+e,'mem':''}));
@@ -346,6 +350,7 @@ app.post("/metoda", function(req, res){
     })
 })
 
+//posle vsetky metody clientovi
 app.post("/getmetoda", function(req, res){
     let chunks = [];
 
@@ -361,12 +366,12 @@ app.post("/getmetoda", function(req, res){
             console.error(e);
         }
         client.query('SELECT nazov FROM metody WHERE user_id=\''+parseInt(jData.id)+'\';').then((response) => {
-            console.log(response)
             res.send(JSON.stringify({'list': response.rows}))
         })
     })
 })
 
+//vymazanie metody z databazy a vratenie vsetkych metod
 app.post("/delmetoda", function(req, res){
     let chunks = [];
 
@@ -390,6 +395,7 @@ app.post("/delmetoda", function(req, res){
     })
 })
 
+//vymazanie merania z databazy a vratenie vsetkych merani
 app.post("/delmeranie", function(req, res) {
     let chunks = [];
 

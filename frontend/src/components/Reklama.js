@@ -1,9 +1,10 @@
 function Reklama(props){
 
+    //zatvorenie reklamy1 a zvysenie pocitadla v databaze o 1
     function click1(){
         window.open(props.reklamaLink1);
         props.close()
-        fetch('http://localhost:8000/pocet',{
+        fetch('http://localhost:8080/pocet',{
                 method: 'POST',
                 mode: 'cors',
                 cache: 'no-cache',
@@ -18,10 +19,12 @@ function Reklama(props){
                 })
             })
     }
+
+    //zatvorenie reklamy2 a zvysenie pocitadla v databaze o 1
     function click2(){
         window.open(props.reklamaLink2);
         props.close()
-        fetch('http://localhost:8000/pocet',{
+        fetch('http://localhost:8080/pocet',{
                 method: 'POST',
                 mode: 'cors',
                 cache: 'no-cache',
@@ -36,10 +39,12 @@ function Reklama(props){
                 })
             })
     }
+
+    //zatvorenie reklamy3 a zvysenie pocitadla v databaze o 1
     function click3(){
         window.open(props.reklamaLink3);
         props.close()
-        fetch('http://localhost:8000/pocet',{
+        fetch('http://localhost:8080/pocet',{
                 method: 'POST',
                 mode: 'cors',
                 cache: 'no-cache',
@@ -52,7 +57,7 @@ function Reklama(props){
                 body: JSON.stringify({
                     id: 3,
                 })
-            })
+        })
     }
 
     if (props.reklamaOpen === 0){

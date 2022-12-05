@@ -15,7 +15,7 @@ CREATE TABLE public.users (
 CREATE TABLE public.metody (
     user_id integer NOT NULL,
     nazov text NOT NULL,
-    popis text NOT NULL,
+    popis text NOT NULL
 ) WITH (oids = false);
 
 CREATE SEQUENCE reklama_id_seq INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647 CACHE 1;
@@ -39,11 +39,10 @@ CREATE TABLE public.vaha (
     user_id integer NOT NULL,
     datum date NOT NULL,
     hodnota integer NOT NULL,
-    typ text NOT NULL,
     metoda text
 ) WITH (oids = false);
 
-DROP TABLE IF EXISTS kroky;
+
 CREATE TABLE public.kroky (
     user_id integer NOT NULL,
     datum date NOT NULL,
@@ -52,7 +51,6 @@ CREATE TABLE public.kroky (
 ) WITH (oids = false);
 
 
-DROP TABLE IF EXISTS tep;
 CREATE TABLE public.tep (
     user_id integer NOT NULL,
     datum date NOT NULL,

@@ -2,7 +2,7 @@ services:
   backend:
     build: .
     ports:
-      - "8000:8000"
+      - "8080:8080"
 
   db:
     image: postgres
@@ -11,9 +11,3 @@ services:
       POSTGRES_PASSWORD: admin
     volumes:
       - ./init.sql:/docker-entrypoint-initdb.d/init.sql
-
-  adminer:
-    image: adminer
-    restart: always
-    ports:
-      - 8080:8080

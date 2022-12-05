@@ -1,14 +1,18 @@
 function Login (props) {
+
+    //otvorenie stranky s registraciou
     function goRegister() {
         props.openLog()
     }
 
+    //vracia value inputu na zaklade jeho id
     function getInput(id){
         return document.getElementById(id).value
     }
 
+    //ak user zada spravne meno a heslo otvori main page
     function goMain() {
-        fetch('http://localhost:8000/user',{
+        fetch('http://localhost:8080/user',{
                 method: 'POST',
                 mode: 'cors',
                 cache: 'no-cache',
